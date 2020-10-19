@@ -13,7 +13,7 @@ def hello():
 @app.route('/url_parser/', methods=['POST'])
 def form_post():
     url = request.form['url']
-    return redirect('/url_parser/' + url)
+    return redirect('/single_page_parser/' + url)
 
 
 @app.route('/single_page_parser/<url>')
