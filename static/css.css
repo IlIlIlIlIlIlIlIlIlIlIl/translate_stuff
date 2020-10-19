@@ -1,0 +1,24 @@
+body, html {
+    height: 100%;
+    width: 100%;
+}
+
+.fill { 
+    min-height: 100%;
+    height: 100%;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+  
+.bg { 
+    /* The image used */
+    background-image: url("/static/landing_bg.jpg");
+  
+    /* Full height */
+    height: 100%; 
+  
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}

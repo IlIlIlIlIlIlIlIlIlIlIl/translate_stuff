@@ -16,14 +16,11 @@ def form_post():
     return redirect('/url_parser/' + url)
 
 
-@app.route('/url_parser/<url>')
+@app.route('/single_page_parser/<url>')
 def hello_name(url):
     url_parser = ParserClass(url)
-    return_string = "Hello {}!<br>".format(url)
-    print(url_parser.stats)
-    for i in url_parser.stats:
-        return_string += str(i) + '<br>'
-    return return_string
+    val_dict = url_parser.stats
+    return render_template("url_parser.html", values=val_dict)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,24 @@
+{% include  'head.html' %}
+<div class="container-fluid fill">
+  <div class="row">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 5%">#</th>
+        <th scope="col" style="width: 15%">Key</th>
+        <th scope="col" style="width: 80%">Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key in values %}
+      <tr>
+        <th scope="row">{{loop.index}}</th>
+        <td>{{key}}</td>
+        <td>{{values[key]}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% include  'foot.html' %}
