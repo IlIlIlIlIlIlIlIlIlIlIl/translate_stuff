@@ -24,10 +24,5 @@ def hello_name(url):
 
 
 if __name__ == '__main__':
-    # parser = argparse.ArgumentParser(description='Process webpages.')
-    # parser.add_argument('--url', help='Link to webpage')
-    # args = parser.parse_args()
-    #
-    # my_parser = ParserClass(args.url)
     app.run(host='127.0.0.1', port=8080, debug=True)
 

@@ -9,6 +9,8 @@ body, html {
     padding-right: 0px;
     padding-left: 0px;
 }
+
+
   
 .bg { 
     /* The image used */
@@ -21,4 +23,15 @@ body, html {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+}
+
+.center{
+    margin: auto;
+}
+
+div#loading {
+    width: 100px;
+    height: 100px;
+    display: none;
+    background: url(/static/ajax-loader_1.gif) no-repeat;
 }

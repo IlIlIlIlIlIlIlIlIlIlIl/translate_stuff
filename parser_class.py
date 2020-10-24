@@ -39,18 +39,14 @@ class ParserClass:
         result['Number of words found:'] = len(self.proc_text)
         result['Number of unique words found:'] = len(set(self.proc_text))
         result['Unique words:'] = ', '.join(list(set(self.proc_text)))
-        text_p = (''.join(s.findAll(text=True))for s in self.soup.findAll('header'))
-        c_p = Counter((x.rstrip(punctuation).lower() for y in text_p for x in y.split()))
-        print(c_p)
-        text_p = (''.join(s.findAll(text=True))for s in self.soup.findAll('footer'))
-        c_p = Counter((x.rstrip(punctuation).lower() for y in text_p for x in y.split()))
-        print(c_p)
-        text_p = (''.join(s.findAll(text=True))for s in self.soup.findAll('p'))
-        c_p = Counter((x.rstrip(punctuation).lower() for y in text_p for x in y.split()))
-        print(c_p)
+        # text_p = (''.join(s.findAll(text=True))for s in self.soup.findAll('header'))
+        # c_p = Counter((x.rstrip(punctuation).lower() for y in text_p for x in y.split()))
+        # text_p = (''.join(s.findAll(text=True))for s in self.soup.findAll('footer'))
+        # c_p = Counter((x.rstrip(punctuation).lower() for y in text_p for x in y.split()))
+        # text_p = (''.join(s.findAll(text=True))for s in self.soup.findAll('p'))
+        # c_p = Counter((x.rstrip(punctuation).lower() for y in text_p for x in y.split()))
 
-        # We get the words within divs
-        text_div = (''.join(s.findAll(text=True))for s in self.soup.findAll('div'))
-        c_div = Counter((x.rstrip(punctuation).lower() for y in text_div for x in y.split()))
-        print(c_div)
+        # # We get the words within divs
+        # text_div = (''.join(s.findAll(text=True))for s in self.soup.findAll('div'))
+        # c_div = Counter((x.rstrip(punctuation).lower() for y in text_div for x in y.split()))
         return result

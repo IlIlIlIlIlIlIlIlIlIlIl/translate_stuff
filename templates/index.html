@@ -4,14 +4,17 @@
     <div class="row align-items-center fill">
       <div class="col-sm"></div>
       <div class="col-sm align-self-center">
-        <form action="/url_parser/" method="post">
-          <div class="col text-center">
-            <div class="form-group row">
-              <input type="string" name="url" class="form-control" id="exampleInputEmail1" placeholder="Enter url (e.g. www.google.com)">
+        <div id="loading" class="center"></div>
+        <div id="form">
+          <form action="/url_parser/" method="post">
+            <div class="col text-center">
+              <div class="form-group row">
+                <input type="string" name="url" class="form-control" id="exampleInputEmail1" placeholder="Enter url (e.g. www.google.com)">
+              </div>
+              <button type="submit" class="btn btn-primary" onclick="loading();">Submit</button>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
       <div class="col-sm"></div>
     </div>
