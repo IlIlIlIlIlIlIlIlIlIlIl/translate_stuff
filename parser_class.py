@@ -19,15 +19,16 @@ class ParserClass(threading.Thread):
     def run(self):
         self.status_message = 'Parsing Url'
         self.url = self.parse_url(self.url)
-        self.status = 10
+        self.status = 1
         self.status_message = 'Loading index html'
         self.html = self.get_html_page()
-        self.status = 20
+        self.status = 5
         self.status_message = 'Parsing all Url links'
         self.get_links_from_page(self.html)
+        self.status = 10
         self.status_message = 'Loading all pages'
-        self.status = 30
         self.get_all_pages()
+        self.status_message != "Done!"
         # self.text = self.get_text_from_html()
         # self.proc_text = self.post_process()
         # self.stats = self.get_stats()
@@ -89,8 +90,12 @@ class ParserClass(threading.Thread):
     
     def get_all_pages(self):
         get_links_from = []
+        length_for_status = len(self.data)
+        i = 1
         for link in self.data:
             if self.data[link] is None:
+                self.status = int((i / length_for_status) *100)
+                i += 1
                 print('Parsing --> ' + link)
                 page = requests.get(link, verify=False)
                 if page.status_code != 200:
@@ -100,8 +105,11 @@ class ParserClass(threading.Thread):
                 get_links_from.append(page)
         for page in get_links_from:
             self.get_links_from_page(page)
+        length_for_status = len(self.data)
         for link in self.data:
             if self.data[link] is None:
+                self.status = min(100, int((i / length_for_status)*100))
+                i += 1
                 print('Parsing --> ' + link)
                 page = requests.get(link, verify=False)
                 if page.status_code != 200:

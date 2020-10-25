@@ -4,12 +4,14 @@
     <div class="row align-items-center fill">
       <div class="col-sm"></div>
       <div class="col-sm align-self-center">
-        <div id="loading" class="center"></div>
+        <div class="progress" id="loading" style="display: none;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+        </div>
         <div id="form">
           <form action="/url_parser/" method="post">
             <div class="col text-center">
               <div class="form-group row">
-                <input type="string" name="url" class="form-control" id="exampleInputEmail1" placeholder="Enter url (e.g. www.google.com)">
+                <input type="string" name="url" id="strinput" class="form-control" id="exampleInputEmail1" placeholder="Enter url (e.g. www.google.com)">
               </div>
               <button type="submit" class="btn btn-primary" onclick="loading();">Submit</button>
             </div>
