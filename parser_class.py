@@ -1,21 +1,117 @@
 import requests
+import urllib3
 import re
+import threading
 from bs4 import BeautifulSoup
 from collections import Counter
 from string import punctuation
+from urllib.parse import urlparse, urljoin
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-
-class ParserClass:
+class ParserClass(threading.Thread):
     def __init__(self, url):
+        self.data = {}
         self.url = url
+        self.status = 0
+        self.status_message = ''
+        super().__init__()
+    
+    def run(self):
+        self.status_message = 'Parsing Url'
+        self.url = self.parse_url(self.url)
+        self.status = 10
+        self.status_message = 'Loading index html'
         self.html = self.get_html_page()
-        self.soup = BeautifulSoup(self.html, features="html.parser")
-        self.text = self.get_text_from_html()
-        self.proc_text = self.post_process()
-        self.stats = self.get_stats()
+        self.status = 20
+        self.status_message = 'Parsing all Url links'
+        self.get_links_from_page(self.html)
+        self.status_message = 'Loading all pages'
+        self.status = 30
+        self.get_all_pages()
+        # self.text = self.get_text_from_html()
+        # self.proc_text = self.post_process()
+        # self.stats = self.get_stats()
+            
+    
+    def parse_url(self, _url):
+        url_dict = {}
+        parsed = urlparse(_url)
+        # My lord, this is ugly.. there must be an easier way
+        if parsed.netloc == "":
+            if parsed.path and parsed.path.startswith('www.'):
+                url_dict['netloc'] = urlparse(parsed.path.replace('www.',''))
+                url_dict['www_netloc'] = urlparse(parsed.path)
+            else:
+                url_dict['netloc'] = urlparse(parsed.path)
+                url_dict['www_netloc'] = urlparse("www." + parsed.path)
+            url_dict['https'] = urlparse('https://' + url_dict['netloc'].path)
+            url_dict['https_www'] = urlparse('https://' + url_dict['www_netloc'].path)
+        else:
+            if parsed.netloc and parsed.netloc.startswith('www.'):
+                url_dict['netloc'] = urlparse(parsed.netloc.replace('www.',''))
+                url_dict['www_netloc'] = urlparse(parsed.netloc)
+            else:
+                url_dict['netloc'] = urlparse(parsed.netloc)
+                url_dict['www_netloc'] = urlparse("www." + parsed.netloc)
+            url_dict['https'] = urlparse('https://' + url_dict['netloc'].path)
+            url_dict['https_www'] = urlparse('https://' + url_dict['www_netloc'].path)
+        return url_dict
+    
+    def get_links_from_page(self, _html):
+        soup = BeautifulSoup(_html, features="html.parser")
+        for link in soup.findAll('a'):
+            link = link.get('href')
+            if link is None or link == '':
+                continue
+            if link in self.data:
+                continue
+            if link.startswith('/'):
+                link = self.url['https'].geturl() + link
+            link = link.replace('www.','')
+            link = urlparse(link)
+            if link.scheme != 'https':
+                continue
+            if link.path == '/':
+                link = urlparse(link.scheme +'://' + link.netloc)
+            if link.params != '' or link.query != '' or link.fragment != '':
+                new_link = link.scheme + '://' + link.netloc
+                if link.path != '':
+                    new_link = urljoin(new_link, link.path)
+                link = urlparse(new_link)
+            if link.path and link.path.endswith('/'):
+                link = urlparse(link.geturl()[:-1])
+            if link.path.lower().split('.')[-1] in ['exe', 'zip', 'png', 'jpg', 'pdf']:
+                continue
+            if link.geturl() not in self.data:
+                if link.netloc == self.url['https'].netloc:
+                    print('--- New Link --> ' + link.geturl())
+                    self.data[link.geturl()] = None
+    
+    def get_all_pages(self):
+        get_links_from = []
+        for link in self.data:
+            if self.data[link] is None:
+                print('Parsing --> ' + link)
+                page = requests.get(link, verify=False)
+                if page.status_code != 200:
+                    continue
+                page = page.content
+                self.data[link] = page
+                get_links_from.append(page)
+        for page in get_links_from:
+            self.get_links_from_page(page)
+        for link in self.data:
+            if self.data[link] is None:
+                print('Parsing --> ' + link)
+                page = requests.get(link, verify=False)
+                if page.status_code != 200:
+                    continue
+                page = page.content
+                self.data[link] = page
+        
 
     def get_html_page(self):
-        raw_page = requests.get('http://' + self.url)
+        raw_page = requests.get(self.url['https'].geturl(), verify=False)
         return raw_page.content
 
     def get_text_from_html(self):
