@@ -2,6 +2,7 @@ import requests
 import urllib3
 import re
 import threading
+import string
 from bs4 import BeautifulSoup
 from collections import Counter
 from string import punctuation
@@ -9,26 +10,29 @@ from urllib.parse import urlparse, urljoin
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ParserClass(threading.Thread):
-    def __init__(self, url):
-        self.data = {}
-        self.url = url
-        self.status = 0
-        self.status_message = ''
+    def __init__(self, url, _db_ref):
         super().__init__()
+        self.data = {}
+        self._id = url
+        self.url = url
+        self._db_ref = _db_ref
+    
+    def update(self, _status, _message):
+        _dict = {"status": _status, "message": _message}
+        self._db_ref.document(self._id).set(_dict)
     
     def run(self):
-        self.status_message = 'Parsing Url'
+        self.update(0, "Parsing Url")
         self.url = self.parse_url(self.url)
-        self.status = 1
-        self.status_message = 'Loading index html'
+        self.update(1, "Loading index html")
         self.html = self.get_html_page()
-        self.status = 5
-        self.status_message = 'Parsing all Url links'
+        self.update(3, "Parsing all Url links")
         self.get_links_from_page(self.html)
-        self.status = 10
-        self.status_message = 'Loading all pages'
+        self.update(3, "Loading all pages")
         self.get_all_pages()
-        self.status_message != "Done!"
+        self.update(99, "Analysing Pages...")
+        self.parse_all_pages()
+        self.update(100, "Done!")
         # self.text = self.get_text_from_html()
         # self.proc_text = self.post_process()
         # self.stats = self.get_stats()
@@ -85,7 +89,7 @@ class ParserClass(threading.Thread):
                 continue
             if link.geturl() not in self.data:
                 if link.netloc == self.url['https'].netloc:
-                    print('--- New Link --> ' + link.geturl())
+                    self.status_message = 'Found new link: ' + link.geturl()
                     self.data[link.geturl()] = None
     
     def get_all_pages(self):
@@ -94,9 +98,11 @@ class ParserClass(threading.Thread):
         i = 1
         for link in self.data:
             if self.data[link] is None:
-                self.status = int((i / length_for_status) *100)
+                status = int((i / length_for_status) *60)
+                status_message = 'Parsing: ' + link
+                self.update(status, status_message)
                 i += 1
-                print('Parsing --> ' + link)
+
                 page = requests.get(link, verify=False)
                 if page.status_code != 200:
                     continue
@@ -108,35 +114,49 @@ class ParserClass(threading.Thread):
         length_for_status = len(self.data)
         for link in self.data:
             if self.data[link] is None:
-                self.status = min(100, int((i / length_for_status)*100))
+                status = min(100, int((i / length_for_status)*40)+60)
+                status_message = 'Parsing: ' + link
+                self.update(status, status_message)
                 i += 1
-                print('Parsing --> ' + link)
                 page = requests.get(link, verify=False)
                 if page.status_code != 200:
                     continue
                 page = page.content
                 self.data[link] = page
-        
 
     def get_html_page(self):
         raw_page = requests.get(self.url['https'].geturl(), verify=False)
         return raw_page.content
+    
+    def parse_all_pages(self):
+        for data in self.data:
+            value = self.data[data]
+            if value is not None:
+                value = self.get_text_from_html(value)
+                self.data[data] = value
 
-    def get_text_from_html(self):
-        text = self.soup.get_text()
+    def get_text_from_html(self, _html):
+        soup = BeautifulSoup(_html, features="html.parser")
+        text = soup.get_text()
         regexes = ['\\s[\\W*|\\d*|,*]*\\s', '\t', '\xa0', '\r+', '\n+', ' +']
         for reg in regexes:
             text = re.sub(reg, ' ', text)
-        return text
+        processed_text = self.post_process(text)
+        return processed_text
 
-    def post_process(self):
-        processed_text = self.text.lower()
+    def post_process(self, _text):
+        processed_text = _text.lower()
         processed_text = processed_text.split(' ')
         chars_to_remove = ['', '-', '–', '•', '|', '&'] 
+        for idx, word in enumerate(processed_text):
+            if len(word) > 20:
+                processed_text[idx] = ''
         for char in chars_to_remove:
             while char in processed_text:
                 processed_text.remove(char)
-        return processed_text
+        for i, s in enumerate(processed_text):
+            processed_text[i] = s.translate(str.maketrans('', '', string.punctuation))
+        return ' '.join(processed_text)
 
     def get_stats(self):
         result = {}

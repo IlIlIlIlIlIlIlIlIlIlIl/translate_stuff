@@ -10,8 +10,6 @@ body, html {
     padding-left: 0px;
 }
 
-
-  
 .bg { 
     /* The image used */
     background-image: url("/static/landing_bg.jpg");

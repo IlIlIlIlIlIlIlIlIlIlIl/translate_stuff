@@ -3,9 +3,10 @@
   <div class="container fill">
     <div class="row align-items-center fill">
       <div class="col-sm"></div>
-      <div class="col-sm align-self-center">
+      <div class="col-sm align-self-center" id="my_column">
+        <p class="text-center" id="loading_text" style="display: none;">Loading...</p>
         <div class="progress" id="loading" style="display: none;">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+          <div class="progress-bar progress-bar-striped progress-bar-animated" id="bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
         </div>
         <div id="form">
           <form action="/url_parser/" method="post">

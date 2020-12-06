@@ -1,16 +1,22 @@
-from urllib.parse import urlparse, urljoin
+import threading
+import time
+class ParserClass(threading.Thread):
+    def __init__(self, *args, **kwargs): 
+        super(ParserClass, self).__init__(*args, **kwargs) 
+        self._stop = threading.Event() 
 
-parsed1 = 'wfw.ch'
-parsed2 = 'www.wfw.ch'
-parsed3 = 'www.wfw.ch'
-parsed4 = 'https://www.wfw.ch/'
-parsed5 = 'https://femtonics.eu/uploads/MES/MES7.2_released.zip'
+    def stop(self): 
+        self._stop.set() 
+    def run(self):
+        while True:
+            time.sleep(1)
+            print("Next")
 
-
-print(urlparse(parsed1))
-print(urlparse(parsed2))
-print(urlparse(parsed3))
-print(urlparse(parsed4))
-print(urlparse(parsed5))
-
-print(urlparse(parsed5).path.lower().split('.')[-1] in ['exe', 'zip', 'png', 'jpg', 'pdf'])
+a = ParserClass()
+a.start()
+a.join(5)
+print("Shutting down")
+a.stop()
+print("Waiting to finish")
+a.join()
+print("Done!")
